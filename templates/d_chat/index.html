@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block custom_js %}
+<script>
+  var chatSocket = new WebSocket('ws://127.0.0.1:8000/chat/chat');
+
+  chatSocket.onmessage = function(e) {
+    var data = JSON.parse(e.data);
+    var message = data['info'];
+    //document.querySelector('#chat-log').value += (message + '\n');
+    var chat_log = $("#chat-log").val();
+    console.log(message)
+    $("#chat-log").text(chat_log + "\n" + message);
+  };
+
+  chatSocket.onopen = function () {
+    // Web Socket 已连接上，使用 send() 方法发送数据
+    chatSocket.send("发送数据");
+    console.log("发送数据")
+  };
+  chatSocket.onclose = function(e) {
+    console.error('Chat socket closed unexpectedly');
+  };
+
+  function send_message(){
+    var message = $("#chat-message-input").val();
+    chatSocket.send(JSON.stringify({
+        'message': message
+    }));
+  }
+
+</script>
+{% endblock custom_js %}
+{% block main %}
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+				<div class="navbar-header">
+					 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1"> <span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button> <a class="navbar-brand" href="#">Brand</a>
+				</div>
+
+				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+					<ul class="nav navbar-nav">
+						<li class="active">
+							 <a href="#">Link</a>
+						</li>
+						<li>
+							 <a href="#">Link</a>
+						</li>
+						<li class="dropdown">
+							 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown<strong class="caret"></strong></a>
+							<ul class="dropdown-menu">
+								<li>
+									 <a href="#">Action</a>
+								</li>
+								<li>
+									 <a href="#">Another action</a>
+								</li>
+								<li>
+									 <a href="#">Something else here</a>
+								</li>
+								<li class="divider">
+								</li>
+								<li>
+									 <a href="#">Separated link</a>
+								</li>
+								<li class="divider">
+								</li>
+								<li>
+									 <a href="#">One more separated link</a>
+								</li>
+							</ul>
+						</li>
+					</ul>
+					<form class="navbar-form navbar-left" role="search">
+						<div class="form-group">
+							<input type="text" class="form-control" />
+						</div> <button type="submit" class="btn btn-default">Submit</button>
+					</form>
+					<ul class="nav navbar-nav navbar-right">
+						<li>
+							<a href="{% url 'user_mgmt:auth_login' %}">About</a>
+						</li>
+						<li class="dropdown">
+							{% if request.session.user_id %}
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown">{{request.session.user_id}}<strong class="caret"></strong></a>
+							<ul class="dropdown-menu">
+								<li>
+									 <a href="{% url 'user_mgmt:auth_logout' %}">Logout</a>
+								</li>
+							</ul>
+							{% else %}
+							<a href="{% url 'user_mgmt:auth_login' %}">Login</a>
+							{% endif %}
+						</li>
+					</ul>
+				</div>
+			</nav>
+<div class="container">
+	<div class="row clearfix">
+		<div class="col-md-12 column" style="margin-top: 50px;">
+			<div class="jumbotron">
+				<textarea class="form-control" id="chat-log" disabled rows="20"></textarea><br/>
+                <input class="form-control" id="chat-message-input" type="text"/><br/>
+                <input class="btn btn-success btn-block" id="chat-message-submit" type="button" value="Send" onclick="send_message()"/>
+			</div>
+		</div>
+	</div>
+	<div class="row clearfix">
+		<div class="col-md-4 column">
+		</div>
+		<div class="col-md-4 column">
+		</div>
+		<div class="col-md-4 column">
+		</div>
+	</div>
+</div>
+{% endblock main %}
+
