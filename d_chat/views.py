@@ -8,40 +8,37 @@ from .models import *
 
 # Create your views here.
 send_flag = 0
+request_list = []
+user_id_list = []
 
 @accept_websocket
+@login_required
 def chat(request):
     if request.is_websocket:
-        # while True:
-        #     time.sleep(5)
-        #     if send_flag == 1:
-        #         message = ChatRecordTbl.objects.filter()
-        #     request.websocket.send(json.dumps({'info':'server info:hhhhh...'}))
-        try:
-            while True:
-                message = request.websocket.wait()  # 接受前段发送来的数据
-                if message:
-                    message = bytes.decode(message)
-                    if message != '886':
-                        try:
-                            receive_data = message
-                            if receive_data:
-                                request.websocket.send(receive_data.encode())  # 发送给前段的数据
-                                time.sleep(1)
-
-                        except Exception as e:
-                            request.websocket.close()
-                            return
-                    else:
-                        print('socket请求关闭！！！')
-                        request.websocket.close()
-                        return
-        except Exception as e:
+        if request.session.get('user_id') in user_id_list:
+            pass
+        else:
+            request_list.append(request)
+        while True:
+            time.sleep(1)
             try:
+                data = request.websocket.wait()  # 接受前端发送来的数据
+                if data:
+                    print(data)
+                    if data != '886':
+                        receive_data = data
+                        if receive_data:
+                            for item in request_list:
+                                item.websocket.send(receive_data)  # 发送给前端的数据
+                    else:
+                        message = {"user_id":"root","message":"connect close."}
+                        request.websocket.send(json.dumps(message))
+                        request.websocket.close()
+                        # remove current in user_id_list and requests_list
+
+            except Exception as e:
                 request.websocket.close()
-                return
-            except:
-                return
+                print('socket请求关闭！！！')
 
 @login_required
 def chat_panel(request):

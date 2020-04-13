@@ -8,3 +8,4 @@ class ChatRecordTbl(models.Model):
     from_user_id = models.ForeignKey(UserTbl,related_name="form_user_id",on_delete=models.CASCADE)
     to_user_id = models.ForeignKey(UserTbl,related_name="to_user_id",on_delete=models.CASCADE)
     message = models.TextField(default='')
+    public_flag = models.IntegerField(default=0)
