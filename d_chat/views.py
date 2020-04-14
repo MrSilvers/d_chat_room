@@ -29,13 +29,23 @@ def chat(request):
                     print(data)
                     data = json.loads(str(data, encoding = "utf-8"))
                     print(data)
-                    send_message(data,request_dict.values())
+                    receiver = data.get("receiver")
+                    if receiver == "public":
+                        print(1111111111)
+                        receiver_list = request_dict.values()
+                    else:
+                        receiver_list = [request_dict.get(receiver)]
                     if data.get("message") == "886":
-                        message = {"user_id":user_id,"message":"connect closed."}
-                        send_message(message,request_dict.values())
+                        data = {"user_id": user_id, "message": "connect closed."}
+                        receiver_list = request_dict.values()
+                        send_message(data, receiver_list)
                         request.websocket.close()
                         # remove current request in request_dict
                         request_dict.pop(user_id)
+                    else:
+                        print(22222)
+                        send_message(data,receiver_list)
+
             except Exception as e:
                 print(e)
                 request.websocket.close()

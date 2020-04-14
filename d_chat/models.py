@@ -9,3 +9,5 @@ class ChatRecordTbl(models.Model):
     to_user_id = models.ForeignKey(UserTbl,related_name="to_user_id",on_delete=models.CASCADE)
     message = models.TextField(default='')
     public_flag = models.IntegerField(default=0)
+    is_read_flag = models.BooleanField(default=False)
+    record_time = models.DateTimeField(auto_created=True)

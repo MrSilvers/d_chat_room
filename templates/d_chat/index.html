@@ -15,7 +15,8 @@
 
   chatSocket.onopen = function () {
     // Web Socket 已连接上，使用 send() 方法发送数据
-    chatSocket.send('{"user_id":"root","message":"init:send message","receiver":"public"}');
+	init_message = {"user_id":user_id,"message":"connected","receiver":"public"};
+    chatSocket.send(JSON.stringify(init_message));
     console.log("init: send message")
   };
   chatSocket.onclose = function(e) {
@@ -24,12 +25,19 @@
 
   function send_message(){
     var message = $("#message_input").val();
+    var receiver = $("#receiver").val();
     console.log(message);
-    chatSocket.send(JSON.stringify({
+    data = {
         'message': message,
-        'receiver': "public",
+        'receiver': receiver,
         'user_id': user_id
-    }));
+    };
+    chatSocket.send(JSON.stringify(data));
+    var message = data["user_id"] + " : " + data["message"];
+    //document.querySelector('#chat-log').value += (message + '\n');
+    var chat_log = $("#chat-log").val();
+    console.log(message)
+    $("#chat-log").text(chat_log + "\n" + message);
   }
 
 </script>
@@ -92,6 +100,7 @@
 			<div class="jumbotron">
 				<textarea class="form-control" id="chat-log" disabled rows="20"></textarea><br/>
                 <input class="form-control" id="message_input" type="text"/><br/>
+				<input class="form-control" id="receiver" type="text"/><br/>
                 <input class="btn btn-success btn-block" id="send" type="button" value="Send" onclick="send_message()"/>
 			</div>
 		</div>
