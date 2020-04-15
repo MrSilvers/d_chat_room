@@ -33,6 +33,7 @@ def chat(request):
                     if receiver == "public":
                         print(1111111111)
                         receiver_list = request_dict.values()
+                        print(receiver_list)
                     else:
                         receiver_list = [request_dict.get(receiver)]
                     if data.get("message") == "886":

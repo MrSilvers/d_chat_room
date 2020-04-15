@@ -47,6 +47,7 @@ def auth_logout(request):
 def login_required(func):
     def inner(request, *args, **kwargs):
         if request.session.get('user_id'):
+            request.session.set_expiry(60*10)
             function = func(request,*args, **kwargs)
             return function
         else:
