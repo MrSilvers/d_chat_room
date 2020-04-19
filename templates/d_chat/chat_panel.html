@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block custom_css %}
+<style>
+	.table{
+		width: 100%;
+		max-width: 100%;
+		margin-bottom: 0;
+	}
+	.table>tbody>tr>td{
+		text-align: center;
+		vertical-align: middle;
+	}
+</style>
+{% endblock custom_css %}
+{% block custom_js %}
+<script>
+  var chatSocket = new WebSocket('ws://127.0.0.1:8000/chat/chat');
+  var user_id = "{{request.session.user_id}}";
+  chatSocket.onmessage = function(e) {
+    var data = JSON.parse(e.data);
+    var message = data["user_id"] + " : " + data["message"];
+    //document.querySelector('#chat-log').value += (message + '\n');
+    var chat_log = $("#chat-log").val();
+    console.log(message)
+    $("#chat-log").text(chat_log + "\n" + message);
+  };
+
+  chatSocket.onopen = function () {
+    // Web Socket 已连接上，使用 send() 方法发送数据
+	init_message = {"user_id":user_id,"message":"connected","receiver":"public"};
+    chatSocket.send(JSON.stringify(init_message));
+    console.log("init: send message")
+  };
+  chatSocket.onclose = function(e) {
+    console.error('Chat socket closed unexpectedly');
+  };
+
+  function send_message(){
+    var message = $("#message_input").val();
+    var receiver = $("#receiver").val();
+    console.log(message);
+    data = {
+        'message': message,
+        'receiver': receiver,
+        'user_id': user_id
+    };
+    chatSocket.send(JSON.stringify(data));
+    var message = data["user_id"] + " : " + data["message"];
+    //document.querySelector('#chat-log').value += (message + '\n');
+    var chat_log = $("#chat-log").val();
+    console.log(message)
+    $("#chat-log").text(chat_log + "\n" + message);
+  }
+
+</script>
+{% endblock custom_js %}
+{% block main %}
+<div class="container panelGap">
+	<div class="row clearfix">
+		<div class="col-md-12 column" style="margin-top: 50px;">
+			<div class="jumbotron">
+				<textarea class="form-control" id="chat-log" disabled rows="20"></textarea><br/>
+
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		</div>
+		<div class="col-md-12 column">
+			<div class="panel panel-info">
+				<div class="panel-heading">
+					<h3 class="panel-title">From：</h3>
+				</div>
+				<div class="panel-body">
+					<table class="table">
+						<colgroup>
+							<col width="40%"/>
+							<col width="60%"/>
+						</colgroup>
+						<tbody>
+							<tr>
+								<td>Context</td>
+								<td><input class="form-control" id="message_input" type="text"/><br/></td>
+							</tr>
+							<tr>
+								<td>To</td>
+								<td><input class="form-control" id="receiver" type="text"/><br/></td>
+							</tr>
+							<tr>
+								<td><input class="btn btn-success btn-block" id="send" type="button" value="Send" onclick="send_message()"/></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+		</div>
+		</div>
+	</div>
+</div>
+{% endblock main %}
+
